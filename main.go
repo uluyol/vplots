@@ -50,6 +50,7 @@ body {
 #sidebar object {
 	z-index: -1;
 	position: relative;
+	max-width: 245px;
 }
 
 #main-content {
@@ -60,20 +61,25 @@ body {
 }
 
 .thumb-box:first-child {
-	margin-top: 10px;
+	margin-top: 15px;
 }
 
 .thumb-box {
+	padding-right: 5px;
 	display: block;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	margin-bottom: 10px;
+	border-right: 5px solid #ccc;
+	margin-bottom: 15px;
 	padding: 5px;
+	padding-right: 10px;
 	cursor: pointer;
 }
 
 .thumb-box-selected {
-	background: #eee;
+	border-right: 5px solid red;
+}
+
+.imtitle {
+	font-size: 0.8em;
 }
 
 #im-box {
@@ -124,11 +130,15 @@ button:focus { outline:0; }
 	function checkKey(e) {
 		e = e || window.event;
 
-		if (e.keyCode == '38' || e.keyCode == '37') {
-			// up or left arrow
+		// 38 == up
+		// 40 == down
+		// Ignore up/down because it interacts not as well with scrolling.
+		// Left/right doesn't seem to have this problem.
+		if (e.keyCode == '37') {
+			// left arrow
 			scrollTo(selectedIdx-1);
-		} else if (e.keyCode == '40' || e.keyCode == '39') {
-			// down or right arrow
+		} else if (e.keyCode == '39') {
+			// right arrow
 			scrollTo(selectedIdx+1);
 		}
 	}
