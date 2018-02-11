@@ -1,6 +1,6 @@
 # vplots
 
-vplots is a tool to view plots. For now, vplots only handles pdf files.
+vplots is a tool to view plots. I made it after being fed up with Preview. For now, vplots only handles pdf files.
 
 ## Dependencies
 
