@@ -80,6 +80,14 @@ body {
 
 .imtitle {
 	font-size: 0.8em;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+#im-name {
+	text-align: right;
+	font-size: 1.1em;
 }
 
 #im-box {
@@ -107,7 +115,7 @@ button:focus { outline:0; }
 <body>
 	<div id="sidebar">
 	{{range $index, $p := .Plots}}
-		<a id="thumb-box-{{$index}}" class="thumb-box{{if eq $index 0}} thumb-box-selected{{end}}" onclick="showImage({{$index}}, '/images/{{$index}}')">
+		<a id="thumb-box-{{$index}}" class="thumb-box{{if eq $index 0}} thumb-box-selected{{end}}" onclick="showImage({{$index}}, '/images/{{$index}}', '{{$p}}')">
 			<object data="/images/{{$index}}" type="image/svg+xml" style="pointer-events: none;"></object>
 			<div class="imtitle">{{$p}}</div>
 		</a>
@@ -118,6 +126,7 @@ button:focus { outline:0; }
 			<button id="open" onclick="openInNewTab()">Open in Tab</button>
 			<button id="cp-png" onclick="openPNG()">Open PNG</button>
 			<button id="exit" onclick="quit()">Quit</button>
+			<div id="im-name">{{index .Plots 0}}</div>
 		</div>
 		<object id="im-box" data="/images/0" type="image/svg+xml" style="pointer-events: none;">
 		</object>
@@ -148,9 +157,10 @@ button:focus { outline:0; }
 		var win = window.open(url, '_blank');
 		win.focus();
 	}
-	function showImage(elemIdx, url) {
+	function showImage(elemIdx, url, title) {
 		document.getElementById('thumb-box-' + selectedIdx).classList.remove('thumb-box-selected')
 		document.getElementById('im-box').data = url;
+		document.getElementById('im-name').textContent = title;
 		document.getElementById('thumb-box-' + elemIdx).classList.add('thumb-box-selected');
 		selectedIdx = elemIdx;
 	}
