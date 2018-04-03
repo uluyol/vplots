@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -287,13 +288,17 @@ func main() {
 	r.HandleFunc("/images/{id:[0-9]+}", v.imageHandler)
 	r.HandleFunc("/pngs/{id:[0-9]+}", v.pngHandler)
 
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	s := &http.Server{
-		Addr:    "127.0.0.1:6544",
 		Handler: r,
 	}
 	r.Handle("/quit", quitHandler{s})
-	go openURL(s.Addr)
-	s.ListenAndServe()
+	go openURL(lis.Addr().String())
+	s.Serve(lis)
 }
 
 func openURL(url string) {
