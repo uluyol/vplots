@@ -288,7 +288,7 @@ func main() {
 	r.HandleFunc("/images/{id:[0-9]+}", v.imageHandler)
 	r.HandleFunc("/pngs/{id:[0-9]+}", v.pngHandler)
 
-	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	lis, err := net.Listen("tcp", ":0")
 	if err != nil {
 		log.Fatal(err)
 	}
