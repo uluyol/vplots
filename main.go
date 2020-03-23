@@ -297,6 +297,7 @@ func main() {
 		Handler: r,
 	}
 	r.Handle("/quit", quitHandler{s})
+	log.Printf("listening on %s", lis.Addr().String())
 	go openURL(lis.Addr().String())
 	s.Serve(lis)
 }
