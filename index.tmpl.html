@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Plot Viewer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    body {
+      height: 100%
+    }
+
+    #sidebar {
+      position: absolute;
+      left: 0;
+      width: 260px;
+      height: 100%;
+      overflow: scroll;
+      padding: 0 10px;
+    }
+
+    #sidebar * {
+      max-width: 250px;
+      margin: 0;
+      padding: 0;
+    }
+
+    #sidebar img {
+      z-index: -1;
+      width: 235px;
+    }
+
+    /*
+    #sidebar im {
+      z-index: -1;
+      position: relative;
+      max-width: 245px;
+    }
+    */
+
+    #main-content {
+      position: absolute;
+      right: 0;
+      height: 100%;
+      width: calc(100% - 280px);
+    }
+
+    .thumb-box:first-child {
+      margin-top: 15px;
+    }
+
+    .thumb-box {
+      padding-right: 5px;
+      display: block;
+      border-right: 5px solid #ccc;
+      margin-bottom: 15px;
+      padding: 5px;
+      padding-right: 10px;
+      cursor: pointer;
+    }
+
+    .thumb-box-selected {
+      border-right: 5px solid red;
+    }
+
+    .imtitle {
+      font-size: 0.8em;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    #im-name {
+      text-align: right;
+      font-size: 1.1em;
+      margin: 1em;
+    }
+
+    #im-box {
+      margin: 0;
+      border: none;
+    }
+
+    #im-box img {
+      width: 100%;
+    }
+
+    .button-bar {
+      margin: 10px;
+    }
+
+    button {
+      padding: 1px 4px;
+      font-size: 1.1em;
+      background: white;
+      border: 1 px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    button:focus {
+      outline: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="sidebar">
+    {{range $index, $p := .Plots}}
+    <a id="thumb-box-{{$index}}" class="thumb-box{{if eq $index 0}} thumb-box-selected{{end}}"
+      onclick="showImage({{$index}}, '{{$p}}')">
+      <img id="im-{{$index}}" srcset="
+          /pngs/{{$index}}/100 100w,
+          /pngs/{{$index}}/200 200w,
+          /pngs/{{$index}}/400 400w,
+          /pngs/{{$index}}/800 800w,
+          /pngs/{{$index}}/1200 1200w,
+          /pngs/{{$index}}/1600 1600w,
+          /pngs/{{$index}}/2000 2000w,
+          /pngs/{{$index}}/2400 2400w,
+          /pngs/{{$index}}/2800 2800w,
+          /pngs/{{$index}}/3200 3200w,
+          /pngs/{{$index}}/4000 4000w
+        ">
+      <div class="imtitle">{{$p}}</div>
+    </a>
+    {{end}}
+  </div>
+  <div id="main-content">
+    <div class="button-bar">
+      <button id="cp-png" onclick="openPNG()">Open PNG</button>
+      <button id="cp-svg" onclick="openSVG()">Open SVG</button>
+      <button id="exit" onclick="quit()">Quit</button>
+    </div>
+    <div id="im-box">
+    </div>
+    <div id="im-name">{{index .Plots 0}}</div>
+  </div>
+  <script>
+    selectedIdx = 0;
+
+    document.onkeydown = checkKey;
+
+    function checkKey(e) {
+      e = e || window.event;
+
+      // 38 == up
+      // 40 == down
+      // Ignore up/down because it interacts not as well with scrolling.
+      // Left/right doesn't seem to have this problem.
+      if (e.keyCode == '37') {
+        // left arrow
+        scrollTo(selectedIdx - 1);
+      } else if (e.keyCode == '39') {
+        // right arrow
+        scrollTo(selectedIdx + 1);
+      }
+    }
+
+    function showImage(elemIdx, title) {
+      document.getElementById('thumb-box-' + selectedIdx).classList.remove('thumb-box-selected');
+      var imNodeCopy = document.getElementById('im-' + elemIdx).cloneNode(true);
+      imNodeCopy.id = '';
+      imNodeCopy.sizes = '';
+      var imBox = document.getElementById('im-box');
+      imBox.innerHTML = '';
+      imBox.appendChild(imNodeCopy);
+      document.getElementById('im-name').textContent = title;
+      document.getElementById('thumb-box-' + elemIdx).classList.add('thumb-box-selected');
+      selectedIdx = elemIdx;
+    }
+    function scrollTo(num) {
+      var elem = document.getElementById('thumb-box-' + num);
+      if (elem != null) {
+        elem.onclick();
+        elem.scrollIntoView(true);
+      }
+    }
+    function openPNG() {
+      window.open('/pngs/' + selectedIdx + '/0', '_blank').focus();
+    }
+    function openSVG() {
+      window.open('/svgs/' + selectedIdx, '_blank').focus();
+    }
+    function quit() {
+      var r = new XMLHttpRequest();
+      r.open('GET', '/quit');
+      r.send();
+    }
+
+    scrollTo(0)
+  </script>
+</body>
+
+</html>
