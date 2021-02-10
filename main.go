@@ -101,6 +101,28 @@ func (v *plotViewer) svgHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(v.svgCache[id])
 }
 
+func (v *plotViewer) pdfHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if id < 0 || id >= len(v.pdfPaths) {
+		http.Error(w, "image id out of bounds", http.StatusBadRequest)
+		return
+	}
+
+	out, err := os.ReadFile(v.pdfPaths[id])
+	if err != nil {
+		http.Error(w, fmt.Sprintf("unable to read pdf: %v", err), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("content-type", "application/pdf")
+	w.Write(out)
+}
+
 type quitHandler struct {
 	s *http.Server
 }
@@ -135,6 +157,7 @@ func main() {
 	r.HandleFunc("/", v.rootHandler)
 	r.HandleFunc("/pngs/{id:[0-9]+}/{w:[0-9]+}", v.pngHandler)
 	r.HandleFunc("/svgs/{id:[0-9]+}", v.svgHandler)
+	r.HandleFunc("/pdfs/{id:[0-9]+}", v.pdfHandler)
 
 	lis, err := net.Listen("tcp", ":0")
 	if err != nil {

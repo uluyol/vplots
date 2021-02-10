@@ -117,19 +117,7 @@
     {{range $index, $p := .Plots}}
     <a id="thumb-box-{{$index}}" class="thumb-box{{if eq $index 0}} thumb-box-selected{{end}}"
       onclick="showImage({{$index}}, '{{$p}}')">
-      <img id="im-{{$index}}" srcset="
-          /pngs/{{$index}}/100 100w,
-          /pngs/{{$index}}/200 200w,
-          /pngs/{{$index}}/400 400w,
-          /pngs/{{$index}}/800 800w,
-          /pngs/{{$index}}/1200 1200w,
-          /pngs/{{$index}}/1600 1600w,
-          /pngs/{{$index}}/2000 2000w,
-          /pngs/{{$index}}/2400 2400w,
-          /pngs/{{$index}}/2800 2800w,
-          /pngs/{{$index}}/3200 3200w,
-          /pngs/{{$index}}/4000 4000w
-        ">
+      <img id="im-{{$index}}" src="/pngs/{{$index}}/235">
       <div class="imtitle">{{$p}}</div>
     </a>
     {{end}}
@@ -138,9 +126,21 @@
     <div class="button-bar">
       <button id="cp-png" onclick="openPNG()">Open PNG</button>
       <button id="cp-svg" onclick="openSVG()">Open SVG</button>
+      <button id="cp-pdf" onclick="openPDF()">Open PDF</button>
       <button id="exit" onclick="quit()">Quit</button>
     </div>
     <div id="im-box">
+      <img id="im-box-content" srcset="
+        /pngs/0/400 400w,
+        /pngs/0/800 800w,
+        /pngs/0/1200 1200w,
+        /pngs/0/1600 1600w,
+        /pngs/0/2000 2000w,
+        /pngs/0/2400 2400w,
+        /pngs/0/2800 2800w,
+        /pngs/0/3200 3200w,
+        /pngs/0/4000 4000w
+    ">
     </div>
     <div id="im-name">{{index .Plots 0}}</div>
   </div>
@@ -167,12 +167,17 @@
 
     function showImage(elemIdx, title) {
       document.getElementById('thumb-box-' + selectedIdx).classList.remove('thumb-box-selected');
-      var imNodeCopy = document.getElementById('im-' + elemIdx).cloneNode(true);
-      imNodeCopy.id = '';
-      imNodeCopy.sizes = '';
-      var imBox = document.getElementById('im-box');
-      imBox.innerHTML = '';
-      imBox.appendChild(imNodeCopy);
+      var n = document.getElementById('im-box-content');
+      n.srcset = `
+        /pngs/${elemIdx}/400 400w,
+        /pngs/${elemIdx}/800 800w,
+        /pngs/${elemIdx}/1200 1200w,
+        /pngs/${elemIdx}/1600 1600w,
+        /pngs/${elemIdx}/2000 2000w,
+        /pngs/${elemIdx}/2400 2400w,
+        /pngs/${elemIdx}/2800 2800w,
+        /pngs/${elemIdx}/3200 3200w,
+        /pngs/${elemIdx}/4000 4000w`
       document.getElementById('im-name').textContent = title;
       document.getElementById('thumb-box-' + elemIdx).classList.add('thumb-box-selected');
       selectedIdx = elemIdx;
@@ -189,6 +194,9 @@
     }
     function openSVG() {
       window.open('/svgs/' + selectedIdx, '_blank').focus();
+    }
+    function openPDF() {
+      window.open('/pdfs/' + selectedIdx, '_blank').focus();
     }
     function quit() {
       var r = new XMLHttpRequest();
