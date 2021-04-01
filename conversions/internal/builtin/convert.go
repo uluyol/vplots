@@ -1,7 +1,6 @@
 package builtin
 
 /*
-
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -19,10 +18,6 @@ void XPDFConverter_GlobalInit();
 
 const char *XPDFConverter_RenderPDF(
 	char *filename, int width, OutImage *out);
-
-#cgo CXXFLAGS: -I${SRCDIR}/xpdf_darwin_amd64/include -std=c++11
-#cgo LDFLAGS: -L${SRCDIR}/xpdf_darwin_amd64/lib -lxpdf
-
 */
 import "C"
 import (
