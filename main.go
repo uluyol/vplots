@@ -133,6 +133,8 @@ func (h quitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func Main() {
+	listenAddr := flag.String("addr", ":0", "address to listen on")
+
 	log.SetFlags(0)
 	log.SetPrefix("vplots: ")
 	flag.Parse()
@@ -159,7 +161,7 @@ func Main() {
 	r.HandleFunc("/svgs/{id:[0-9]+}", v.svgHandler)
 	r.HandleFunc("/pdfs/{id:[0-9]+}", v.pdfHandler)
 
-	lis, err := net.Listen("tcp", ":0")
+	lis, err := net.Listen("tcp", *listenAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
