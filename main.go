@@ -132,9 +132,9 @@ func (h quitHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.s.Shutdown(ctx)
 }
 
-func Main() {
-	listenAddr := flag.String("addr", ":0", "address to listen on")
+var listenAddr = flag.String("addr", ":0", "address to listen on")
 
+func Main() {
 	log.SetFlags(0)
 	log.SetPrefix("vplots: ")
 	flag.Parse()
