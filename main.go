@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -26,8 +27,8 @@ var indexTempl = template.Must(template.New("index").Parse(indexTemplStr))
 
 type plotViewer struct {
 	pdfPaths []string
+	svgMu    sync.Mutex // protects svgCache
 	svgCache [][]byte
-	pngCache map[cacheEntry][]byte
 	cPNG     *eagerPNGConverter
 	c        *conversions.Converter
 }
@@ -61,18 +62,14 @@ func (v *plotViewer) pngHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if v.pngCache[cacheEntry{id, width}] == nil {
-		out, err := v.cPNG.Get(id, width)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("unable to convert to svg: %v", err), http.StatusInternalServerError)
-			return
-		}
-
-		v.pngCache[cacheEntry{id, width}] = out
+	out, err := v.cPNG.Get(id, width)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("unable to convert to png: %v", err), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("content-type", "image/png")
-	w.Write(v.pngCache[cacheEntry{id, width}])
+	w.Write(out)
 }
 
 func (v *plotViewer) svgHandler(w http.ResponseWriter, r *http.Request) {
@@ -86,6 +83,9 @@ func (v *plotViewer) svgHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "image id out of bounds", http.StatusBadRequest)
 		return
 	}
+
+	v.svgMu.Lock()
+	defer v.svgMu.Unlock()
 
 	if v.svgCache[id] == nil {
 		out, err := v.c.ToSVG(v.pdfPaths[id])
@@ -150,7 +150,6 @@ func Main() {
 	v := plotViewer{
 		pdfPaths: paths,
 		svgCache: make([][]byte, len(paths)),
-		pngCache: make(map[cacheEntry][]byte),
 		cPNG:     newEagerPNGConverter(paths, c),
 		c:        c,
 	}
