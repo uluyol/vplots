@@ -139,7 +139,7 @@ func Main() {
 	log.SetPrefix("vplots: ")
 	flag.Parse()
 
-	if len(flag.Args()) < 2 {
+	if len(flag.Args()) < 1 {
 		fmt.Fprintln(os.Stderr, "usage: vplots plot.pdf...")
 		os.Exit(2)
 	}
